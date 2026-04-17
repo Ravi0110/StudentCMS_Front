@@ -53,21 +53,15 @@ const ClassesPage = () => {
   const fetchClasses = async () => {
     try {
       setLoading(true);
-      // Mock data for UI as per screenshot
-      const mockData = [
-        { _id: '1', name: 'Grade 10', code: 'G10', sections: 4 },
-        { _id: '2', name: 'Grade 9', code: 'G9', sections: 3 },
-        { _id: '3', name: 'Grade 8', code: 'G8', sections: 3 },
-        { _id: '4', name: 'Grade 7', code: 'G7', sections: 2 },
-        { _id: '5', name: 'Grade 6', code: 'G6', sections: 2 },
-      ];
-      setClasses(mockData);
-      setTotalCount(mockData.length);
+      const res = await classService.getAll({ 
+        page: page + 1, 
+        limit: rowsPerPage, 
+        search: searchValue 
+      });
       
-      // Real API Call (uncomment when backend is ready)
-      // const res = await classService.getAll({ page: page + 1, limit: rowsPerPage, search: searchValue });
-      // setClasses(res.data.payload.results);
-      // setTotalCount(res.data.payload.totalResults);
+      const { data, meta } = res.data.payload;
+      setClasses(data);
+      setTotalCount(meta.total_found);
     } catch (error) {
       notify(error.message || 'Failed to fetch classes', 'error');
     } finally {
@@ -121,16 +115,16 @@ const ClassesPage = () => {
     try {
       setLoading(true);
       if (isEdit) {
-        // await classService.update(selectedId, formData);
+        await classService.update(selectedId, formData);
         notify('Class updated successfully', 'success');
       } else {
-        // await classService.create(formData);
+        await classService.create(formData);
         notify('Class created successfully', 'success');
       }
       handleCloseDialog();
       fetchClasses();
     } catch (error) {
-      notify(error.message || 'Failed to save class', 'error');
+      notify(error.response?.data?.message || error.message || 'Failed to save class', 'error');
     } finally {
       setLoading(false);
     }
@@ -139,12 +133,12 @@ const ClassesPage = () => {
   const handleDelete = async () => {
     try {
       setLoading(true);
-      // await classService.delete(selectedId);
+      await classService.delete(selectedId);
       notify('Class deleted successfully', 'success');
       setOpenDeleteDialog(false);
       fetchClasses();
     } catch (error) {
-      notify(error.message || 'Failed to delete class', 'error');
+      notify(error.response?.data?.message || error.message || 'Failed to delete class', 'error');
     } finally {
       setLoading(false);
     }

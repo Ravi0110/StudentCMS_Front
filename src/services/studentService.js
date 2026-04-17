@@ -1,12 +1,12 @@
 import api from './api';
 
 const studentService = {
-  getAll: (params) => api.get('/admin/student', { params }),
-  getById: (id) => api.get(`/admin/student/${id}`),
-  create: (data) => api.post('/admin/student', data),
-  update: (id, data) => api.put(`/admin/student/${id}`, data),
-  delete: (id) => api.delete(`/admin/student/${id}`),
-  bulkUpload: (data) => api.post('/admin/student/bulk-upload', data),
+  getAll: (params) => api.get('/students', { params }),
+  getById: (id) => api.get(`/students/${id}`),
+  create: (data) => api.post('/students', data),
+  update: (id, data) => api.put(`/students/${id}`, data),
+  delete: (id) => api.delete(`/students/${id}`),
+  bulkUpload: (data) => api.post('/students/bulk-upload', data),
 };
 
 export default studentService;

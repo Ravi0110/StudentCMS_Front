@@ -7,7 +7,7 @@ import {
   CircularProgress, TextField, Link
 } from '@mui/material';
 import { VisibilityOffOutlined, VisibilityOutlined, MailOutline, LockOutlined, School } from '@mui/icons-material';
-import { loginUser, clearError } from '../app/slices/authSlice';
+import { loginUser, loginAdmin, clearError } from '../app/slices/authSlice';
 
 const LoginPage = () => {
   const theme = useTheme();
@@ -18,6 +18,7 @@ const LoginPage = () => {
   const [form, setForm] = useState({ identifier: '', password: '' });
   const [showPwd, setShowPwd] = useState(false);
   const [errors, setErrors] = useState({});
+  const [isAdmin, setIsAdmin] = useState(false);
 
   if (isAuthenticated) return <Navigate to="/dashboard" replace />;
 
@@ -42,8 +43,9 @@ const LoginPage = () => {
     // Map identifier to email for backend compatibility, or backend should handle it
     const credentials = { email: form.identifier, password: form.password };
     
-    const result = await dispatch(loginUser(credentials));
-    if (loginUser.fulfilled.match(result)) {
+    const action = isAdmin ? loginAdmin : loginUser;
+    const result = await dispatch(action(credentials));
+    if (action.fulfilled.match(result)) {
       navigate('/dashboard');
     }
   };
@@ -92,11 +94,26 @@ const LoginPage = () => {
           {/* Titles */}
           <Box sx={{ textAlign: 'center', mb: 4 }}>
             <Typography variant="h4" fontWeight={700} gutterBottom sx={{ fontSize: '1.75rem' }}>
-              Welcome back
+              {isAdmin ? 'Master Admin' : 'Welcome back'}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              Please enter your details to sign in.
+              {isAdmin 
+                ? 'Sign in to manage schools and institutions' 
+                : 'Please enter your details to sign in.'
+              }
             </Typography>
+          </Box>
+
+          <Box sx={{ mb: 3 }}>
+             <Button 
+                fullWidth 
+                variant="outlined" 
+                size="small"
+                onClick={() => setIsAdmin(!isAdmin)}
+                sx={{ borderRadius: 2 }}
+             >
+                {isAdmin ? 'Switch to School Login' : 'Switch to Master Admin'}
+             </Button>
           </Box>
 
           {error && (

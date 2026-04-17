@@ -22,7 +22,25 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
-
+export const loginAdmin = createAsyncThunk(
+  'auth/loginAdmin',
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const { data } = await authService.loginAdmin(credentials);
+      // Persist auth tokens
+      localStorage.setItem(config.TOKEN_KEY, data.payload.token);
+      if (data.payload.refreshToken) {
+        localStorage.setItem(config.REFRESH_TOKEN_KEY, data.payload.refreshToken);
+      }
+      localStorage.setItem(config.USER_KEY, JSON.stringify(data?.payload?.user || data?.payload?.admin));
+      return data.payload;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || 'Admin login failed. Please try again.'
+      );
+    }
+  }
+);
 export const fetchProfile = createAsyncThunk(
   'auth/fetchProfile',
   async (_, { rejectWithValue }) => {
@@ -82,6 +100,22 @@ const authSlice = createSlice({
         state.menuItems = action.payload.menuItems || [];
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Admin Login
+      .addCase(loginAdmin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginAdmin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user || action.payload.admin;
+        state.token = action.payload.token;
+        state.menuItems = action.payload.menuItems || [];
+      })
+      .addCase(loginAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

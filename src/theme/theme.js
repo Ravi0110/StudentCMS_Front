@@ -65,7 +65,7 @@ const getTheme = (mode = 'light') => {
         },
         styleOverrides: {
           root: {
-            borderRadius: 14,
+            borderRadius: 16,
             border: `1px solid ${colors.divider}`,
             backgroundColor: colors.custom.card,
             transition: 'box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out',

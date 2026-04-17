@@ -9,6 +9,9 @@ import '@fontsource/inter/400.css';
 import '@fontsource/inter/500.css';
 import '@fontsource/inter/600.css';
 import '@fontsource/inter/700.css';
+import "react-datepicker/dist/react-datepicker.css";
+// Custom overrides for datepicker to match theme
+import './datepicker-custom.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

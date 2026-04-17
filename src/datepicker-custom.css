@@ -1,0 +1,79 @@
+/* Custom premium theme for react-datepicker to match the School ERP aesthetics */
+
+.react-datepicker {
+  background-color: #fff;
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+  font-family: 'Inter', sans-serif !important;
+  overflow: hidden;
+}
+
+.react-datepicker__header {
+  background-color: #fff !important;
+  border-bottom: 1px solid #f1f5f9 !important;
+  padding-top: 12px !important;
+}
+
+.react-datepicker__current-month {
+  color: #1e293b !important;
+  font-weight: 700 !important;
+  font-size: 1rem !important;
+}
+
+.react-datepicker__day-name {
+  color: #64748b !important;
+  font-weight: 600 !important;
+}
+
+.react-datepicker__day {
+  color: #334155 !important;
+  transition: all 0.2s ease !important;
+  border-radius: 8px !important;
+  padding: 6px !important;
+  width: 32px !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: #f1f5f9 !important;
+  color: #3b82f6 !important;
+}
+
+.react-datepicker__day--selected, 
+.react-datepicker__day--keyboard-selected {
+  background-color: #2563eb !important;
+  color: #fff !important;
+  font-weight: 700 !important;
+}
+
+.react-datepicker__day--outside-month {
+  color: #cbd5e1 !important;
+}
+
+.react-datepicker__navigation {
+  top: 16px !important;
+}
+
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker__input-container input {
+  width: 100%;
+  padding: 8.5px 14px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  font-size: 0.875rem;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s ease;
+  outline: none;
+}
+
+.react-datepicker__input-container input:hover {
+  border-color: #3b82f6;
+}
+
+.react-datepicker__input-container input:focus {
+  border-color: #2563eb;
+  border-width: 2px;
+}

@@ -1,11 +1,11 @@
 import api from './api';
 
 const classService = {
-  getAll: (params) => api.get('/admin/class', { params }),
-  getById: (id) => api.get(`/admin/class/${id}`),
-  create: (data) => api.post('/admin/class', data),
-  update: (id, data) => api.put(`/admin/class/${id}`, data),
-  delete: (id) => api.delete(`/admin/class/${id}`),
+  getAll: (params) => api.get('/classes', { params }),
+  getById: (id) => api.get(`/classes/${id}`),
+  create: (data) => api.post('/classes', data),
+  update: (id, data) => api.put(`/classes/${id}`, data),
+  delete: (id) => api.delete(`/classes/${id}`),
 };
 
 export default classService;

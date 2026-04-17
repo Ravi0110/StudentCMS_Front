@@ -1,8 +1,11 @@
+import { useState, useEffect, useMemo } from 'react';
+import { useSelector } from 'react-redux';
 import {
   Box, Grid, Card, CardContent, Typography,
   Chip, Avatar, List, ListItem, ListItemAvatar,
   ListItemText, Button, useTheme, alpha, Skeleton,
 } from '@mui/material';
+import schoolService from '../../services/schoolService';
 import {
   People as StudentsIcon,
   Person as TeacherIcon,
@@ -162,21 +165,88 @@ const StatCard = ({ stat }) => {
 // ─── Dashboard Page ─────────────────────────────────────────────
 const DashboardPage = () => {
   const theme = useTheme();
+  const { user } = useSelector((s) => s.auth);
+  const [dashboardStats, setDashboardStats] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const isSuperAdmin = useMemo(() => {
+    const role = user?.role?.toLowerCase();
+    return role === 'superadmin' || (!user?.org_id && !user?.schoolId);
+  }, [user]);
+
+  const fetchStats = async () => {
+    setLoading(true);
+    try {
+      if (isSuperAdmin) {
+        const { data } = await schoolService.getStats();
+        const results = data.payload.result;
+        setDashboardStats([
+          {
+            title: 'Total Schools',
+            value: results.totalSchools || 0,
+            subtitle: 'Active institutional partners',
+            icon: TeacherIcon,
+            color: '#7c3aed',
+            bgColor: '#f3e8ff',
+          },
+          {
+            title: 'Total Students',
+            value: results.totalStudents?.toLocaleString() || 0,
+            subtitle: 'System-wide enrollment',
+            icon: StudentsIcon,
+            color: '#2563eb',
+            bgColor: '#eef2ff',
+          },
+          {
+            title: 'Total Platform Users',
+            value: results.totalUsers?.toLocaleString() || 0,
+            subtitle: 'Parents, staff and admins',
+            icon: Groups,
+            color: '#10b981',
+            bgColor: '#ecfdf5',
+          },
+        ]);
+      } else {
+        // School Admin / Teacher Mock Data
+        setDashboardStats(stats);
+      }
+    } catch (err) {
+      console.error('Stats fetch error:', err);
+      // Fallback to mock on error
+      setDashboardStats(isSuperAdmin ? [] : stats);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchStats();
+  }, [isSuperAdmin]);
 
   return (
     <Box>
       <PageHeader
-        title="Overview Dashboard"
-        subtitle="Welcome back! Here's what's happening in your school today."
+        title={isSuperAdmin ? "Super Admin Console" : "Overview Dashboard"}
+        subtitle={isSuperAdmin 
+          ? "Platform-wide summary and school network analytics."
+          : `Welcome back, ${user?.name || "Admin"}! Here's what's happening today.`}
       />
 
       {/* ── Stats Row ─────────────────────────────────────── */}
       <Grid container spacing={2.5} sx={{ mb: 3 }}>
-        {stats.map((stat) => (
-          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={stat.title}>
-            <StatCard stat={stat} />
-          </Grid>
-        ))}
+        {loading ? (
+             [1, 2, 3, 4].map(i => (
+                <Grid size={{ xs: 12, sm: 6, md: isSuperAdmin ? 4 : 3 }} key={i}>
+                    <Skeleton variant="rectangular" height={140} sx={{ borderRadius: 4 }} />
+                </Grid>
+             ))
+        ) : (
+            dashboardStats.map((stat) => (
+                <Grid size={{ xs: 12, sm: 6, md: isSuperAdmin ? 4 : 3 }} key={stat.title}>
+                    <StatCard stat={stat} />
+                </Grid>
+            ))
+        )}
       </Grid>
 
       {/* ── Bottom Row ────────────────────────────────────── */}

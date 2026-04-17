@@ -43,6 +43,7 @@ const DataTable = ({
   loading = false,
   searchValue,
   onSearchChange,
+  onRowClick,
   actions,
   stickyHeader = true,
 }) => {
@@ -131,48 +132,64 @@ const DataTable = ({
           </TableHead>
 
           <TableBody>
-            {loading
-              ? Array.from({ length: rowsPerPage }).map((_, i) => (
-                  <TableRow key={`skel-${i}`}>
+            {loading ? (
+              Array.from({ length: rowsPerPage }).map((_, i) => (
+                <TableRow key={`skel-${i}`}>
+                  {selectable && (
+                    <TableCell padding="checkbox">
+                      <Skeleton variant="rectangular" width={18} height={18} />
+                    </TableCell>
+                  )}
+                  {columns.map((col) => (
+                    <TableCell key={col.id}>
+                      <Skeleton variant="text" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : rows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={columns.length + (selectable ? 1 : 0)} align="center" sx={{ py: 8 }}>
+                  <Box sx={{ textAlign: 'center', color: 'text.secondary' }}>
+                    <Typography variant="body1" fontWeight={600}>
+                      No data found
+                    </Typography>
+                    <Typography variant="body2">
+                      Try adjusting your search or filters.
+                    </Typography>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ) : (
+              rows.map((row) => {
+                const id = row._id || row.id;
+                const isSelected = selected.includes(id);
+                return (
+                  <TableRow
+                    hover
+                    key={id}
+                    selected={isSelected}
+                    onClick={() => onRowClick?.(row)}
+                    sx={{ cursor: (selectable || onRowClick) ? 'pointer' : 'default' }}
+                  >
                     {selectable && (
                       <TableCell padding="checkbox">
-                        <Skeleton variant="rectangular" width={18} height={18} />
+                        <Checkbox
+                          checked={isSelected}
+                          onChange={() => handleSelectRow(id)}
+                          size="small"
+                        />
                       </TableCell>
                     )}
                     {columns.map((col) => (
-                      <TableCell key={col.id}>
-                        <Skeleton variant="text" />
+                      <TableCell key={col.id} align={col.align || 'left'}>
+                        {col.render ? col.render(row[col.id], row) : row[col.id]}
                       </TableCell>
                     ))}
                   </TableRow>
-                ))
-              : rows.map((row) => {
-                  const id = row._id || row.id;
-                  const isSelected = selected.includes(id);
-                  return (
-                    <TableRow
-                      hover
-                      key={id}
-                      selected={isSelected}
-                      sx={{ cursor: selectable ? 'pointer' : 'default' }}
-                    >
-                      {selectable && (
-                        <TableCell padding="checkbox">
-                          <Checkbox
-                            checked={isSelected}
-                            onChange={() => handleSelectRow(id)}
-                            size="small"
-                          />
-                        </TableCell>
-                      )}
-                      {columns.map((col) => (
-                        <TableCell key={col.id} align={col.align || 'left'}>
-                          {col.render ? col.render(row[col.id], row) : row[col.id]}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-                  );
-                })}
+                );
+              })
+            )}
           </TableBody>
         </Table>
       </TableContainer>

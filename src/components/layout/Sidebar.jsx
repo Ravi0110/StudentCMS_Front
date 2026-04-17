@@ -48,6 +48,7 @@ const resolveIcon = (iconName) => {
     classes: 'Class',
     students: 'School',
     teachers: 'Person',
+    parents: 'People',
     schools: 'School',
     myclasses: 'Class',
   };
@@ -62,6 +63,7 @@ const defaultMenuItems = [
   { name: 'Sections', path: '/sections', icon: 'sections' },
   { name: 'Students', path: '/students', icon: 'students' },
   { name: 'Teachers', path: '/teachers', icon: 'teachers' },
+  { name: 'Parents', path: '/parents', icon: 'parents' },
   { name: 'Homework', path: '/homework', icon: 'homework' },
   { name: 'Announcements', path: '/announcements', icon: 'announcement' },
   { name: 'Timetable', path: '/timetable', icon: 'timetable' },
@@ -76,9 +78,35 @@ const Sidebar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const { sidebarOpen, sidebarMobileOpen } = useSelector((s) => s.ui);
-  const { menuItems: backendMenu } = useSelector((s) => s.auth);
+  const { user, menuItems: backendMenu } = useSelector((s) => s.auth);
 
-  const menuItems = backendMenu?.length ? backendMenu : defaultMenuItems;
+  const menuItems = useMemo(() => {
+    // If backend provides menu items, use them
+    if (backendMenu?.length) return backendMenu;
+
+    const role = user?.role?.toLowerCase();
+
+    // 1. Super Admin (Platform Owner)
+    if (role === 'superadmin' || (user && !user.org_id && !user.schoolId)) {
+      return [
+        { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
+        { name: 'Schools', path: '/schools', icon: 'schools' },
+      ];
+    }
+
+    // 2. Teacher
+    if (role === 'teacher') {
+      return [
+        { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
+        { name: 'My Classes', path: '/classes', icon: 'myclasses' },
+        { name: 'Homework', path: '/homework', icon: 'homework' },
+        { name: 'Attendance', path: '/attendance', icon: 'attendance' },
+      ];
+    }
+
+    // 3. School Admin / Default (ERP Full Access)
+    return [...defaultMenuItems];
+  }, [user, backendMenu]);
   const drawerWidth = sidebarOpen ? config.SIDEBAR_WIDTH : config.SIDEBAR_COLLAPSED_WIDTH;
 
   const handleNav = (path) => {
