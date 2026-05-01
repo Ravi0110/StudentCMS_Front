@@ -53,6 +53,18 @@ export const fetchProfile = createAsyncThunk(
   }
 );
 
+export const fetchAccessibleMenus = createAsyncThunk(
+  'auth/fetchAccessibleMenus',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await authService.getAccessibleMenus();
+      return data.payload.result;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch accessible menus.');
+    }
+  }
+);
+
 // ─── Initial State ──────────────────────────────────────────────
 const storedUser = localStorage.getItem(config.USER_KEY);
 const initialState = {
@@ -131,6 +143,16 @@ const authSlice = createSlice({
       .addCase(fetchProfile.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      // Fetch Accessible Menus
+      .addCase(fetchAccessibleMenus.fulfilled, (state, action) => {
+        const apiMenus = action.payload || [];
+        state.menuItems = apiMenus.map(m => ({
+          name: m.name,
+          path: m.route,
+          icon: m.code,
+          permission: m.permission
+        }));
       });
   },
 });

@@ -10,6 +10,7 @@ const authService = {
   changePassword: (data) => api.put('/auth/change-password', data),
   forgotPassword: (email) => api.post('/auth/forgot-password', { email }),
   resetPassword: (data) => api.post('/auth/reset-password', data),
+  getAccessibleMenus: () => api.get('/module/accessible'),
 };
 
 export default authService;

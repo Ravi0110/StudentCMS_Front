@@ -49,9 +49,11 @@ const DataTable = ({
 }) => {
   const theme = useTheme();
 
+  const validRows = Array.isArray(rows) ? rows : [];
+
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      onSelect?.(rows.map((r) => r._id || r.id));
+      onSelect?.(validRows.map((r) => r._id || r.id));
     } else {
       onSelect?.([]);
     }
@@ -112,8 +114,8 @@ const DataTable = ({
               {selectable && (
                 <TableCell padding="checkbox">
                   <Checkbox
-                    indeterminate={selected.length > 0 && selected.length < rows.length}
-                    checked={rows.length > 0 && selected.length === rows.length}
+                    indeterminate={selected.length > 0 && selected.length < validRows.length}
+                    checked={validRows.length > 0 && selected.length === validRows.length}
                     onChange={handleSelectAll}
                     size="small"
                   />
@@ -147,7 +149,7 @@ const DataTable = ({
                   ))}
                 </TableRow>
               ))
-            ) : rows.length === 0 ? (
+            ) : validRows.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={columns.length + (selectable ? 1 : 0)} align="center" sx={{ py: 8 }}>
                   <Box sx={{ textAlign: 'center', color: 'text.secondary' }}>
@@ -161,7 +163,7 @@ const DataTable = ({
                 </TableCell>
               </TableRow>
             ) : (
-              rows.map((row) => {
+              validRows.map((row) => {
                 const id = row._id || row.id;
                 const isSelected = selected.includes(id);
                 return (
@@ -198,7 +200,7 @@ const DataTable = ({
       {onPageChange && (
         <TablePagination
           component="div"
-          count={totalCount ?? rows.length}
+          count={totalCount ?? validRows.length}
           page={page}
           rowsPerPage={rowsPerPage}
           onPageChange={(_, p) => onPageChange(p)}

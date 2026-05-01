@@ -114,7 +114,7 @@ const ParentsPage = () => {
   const fetchStudents = async () => {
     try {
         const { data } = await studentService.getAll();
-        setStudents(data.payload.result);
+        setStudents(data?.payload?.result?.data || []);
     } catch (err) {
         console.error(err);
     }

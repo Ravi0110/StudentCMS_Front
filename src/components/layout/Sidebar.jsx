@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -13,6 +13,7 @@ import {
   Layers, Circle, ChevronLeft, ChevronRight,
 } from '@mui/icons-material';
 import { toggleSidebar, setMobileSidebarOpen } from '../../app/slices/uiSlice';
+import { fetchAccessibleMenus } from '../../app/slices/authSlice';
 import config from '../../config';
 
 // ─── Icon registry ──────────────────────────────────────────────
@@ -56,19 +57,7 @@ const resolveIcon = (iconName) => {
   return iconMap[key] || Circle;
 };
 
-// ─── Default menu items (used as fallback) ──────────────────────
-const defaultMenuItems = [
-  { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
-  { name: 'Classes', path: '/classes', icon: 'classes' },
-  { name: 'Sections', path: '/sections', icon: 'sections' },
-  { name: 'Students', path: '/students', icon: 'students' },
-  { name: 'Teachers', path: '/teachers', icon: 'teachers' },
-  { name: 'Parents', path: '/parents', icon: 'parents' },
-  { name: 'Homework', path: '/homework', icon: 'homework' },
-  { name: 'Announcements', path: '/announcements', icon: 'announcement' },
-  { name: 'Timetable', path: '/timetable', icon: 'timetable' },
-  { name: 'Attendance', path: '/attendance', icon: 'attendance' },
-];
+
 
 const Sidebar = () => {
   const theme = useTheme();
@@ -78,35 +67,17 @@ const Sidebar = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
   const { sidebarOpen, sidebarMobileOpen } = useSelector((s) => s.ui);
-  const { user, menuItems: backendMenu } = useSelector((s) => s.auth);
+  const { user, menuItems: backendMenu, isAuthenticated } = useSelector((s) => s.auth);
+
+  useEffect(() => {
+    if (user && isAuthenticated && (!backendMenu || backendMenu.length === 0)) {
+      dispatch(fetchAccessibleMenus());
+    }
+  }, [dispatch, user, isAuthenticated, backendMenu?.length]);
 
   const menuItems = useMemo(() => {
-    // If backend provides menu items, use them
-    if (backendMenu?.length) return backendMenu;
-
-    const role = user?.role?.toLowerCase();
-
-    // 1. Super Admin (Platform Owner)
-    if (role === 'superadmin' || (user && !user.org_id && !user.schoolId)) {
-      return [
-        { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
-        { name: 'Schools', path: '/schools', icon: 'schools' },
-      ];
-    }
-
-    // 2. Teacher
-    if (role === 'teacher') {
-      return [
-        { name: 'Dashboard', path: '/dashboard', icon: 'dashboard' },
-        { name: 'My Classes', path: '/classes', icon: 'myclasses' },
-        { name: 'Homework', path: '/homework', icon: 'homework' },
-        { name: 'Attendance', path: '/attendance', icon: 'attendance' },
-      ];
-    }
-
-    // 3. School Admin / Default (ERP Full Access)
-    return [...defaultMenuItems];
-  }, [user, backendMenu]);
+    return backendMenu || [];
+  }, [backendMenu]);
   const drawerWidth = sidebarOpen ? config.SIDEBAR_WIDTH : config.SIDEBAR_COLLAPSED_WIDTH;
 
   const handleNav = (path) => {

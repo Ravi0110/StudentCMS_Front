@@ -45,8 +45,8 @@ const StudentsPage = () => {
         limit: rowsPerPage,
         search: searchValue
       });
-      setStudents(data.payload.result);
-      setTotalCount(data.payload.totalResults);
+      setStudents(data?.payload?.result?.data || []);
+      setTotalCount(data?.payload?.result?.meta?.total_found || 0);
     } catch (error) {
        // Mock for safety if backend unavailable
        setStudents([]);

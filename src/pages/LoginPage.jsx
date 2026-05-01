@@ -39,11 +39,11 @@ const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validate()) return;
-    
+
     // Map identifier to email for backend compatibility, or backend should handle it
     const credentials = { email: form.identifier, password: form.password };
-    
-    const action = isAdmin ? loginAdmin : loginUser;
+
+    const action = loginAdmin;
     const result = await dispatch(action(credentials));
     if (action.fulfilled.match(result)) {
       navigate('/dashboard');
@@ -97,23 +97,23 @@ const LoginPage = () => {
               {isAdmin ? 'Master Admin' : 'Welcome back'}
             </Typography>
             <Typography variant="body2" color="text.secondary">
-              {isAdmin 
-                ? 'Sign in to manage schools and institutions' 
+              {isAdmin
+                ? 'Sign in to manage schools and institutions'
                 : 'Please enter your details to sign in.'
               }
             </Typography>
           </Box>
 
           <Box sx={{ mb: 3 }}>
-             <Button 
-                fullWidth 
-                variant="outlined" 
-                size="small"
-                onClick={() => setIsAdmin(!isAdmin)}
-                sx={{ borderRadius: 2 }}
-             >
-                {isAdmin ? 'Switch to School Login' : 'Switch to Master Admin'}
-             </Button>
+            <Button
+              fullWidth
+              variant="outlined"
+              size="small"
+              onClick={() => setIsAdmin(!isAdmin)}
+              sx={{ borderRadius: 2 }}
+            >
+              {isAdmin ? 'Switch to School Login' : 'Switch to Master Admin'}
+            </Button>
           </Box>
 
           {error && (
